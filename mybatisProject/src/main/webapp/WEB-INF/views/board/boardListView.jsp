@@ -16,6 +16,11 @@
         color: white;
         text-decoration: none;
     }
+
+    #search-area{
+        margin-bottom: 24px;
+
+    }
 </style>
 </head>
 <body>
@@ -25,6 +30,31 @@
         <br>
         <h1 align="center">게시판</h1>
         <br>
+
+
+        <div id="search-area">
+            <form action="search.bo" method="get">
+                <input type="hidden" name="cpage" value="1">
+                <!-- value=1 검색을 하면 1페이지부터 보는 것 -->
+                <select name="condition">
+                    <option value="writer">작성자</option>
+                    <option value="title">제목</option>
+                    <option value="content">내용</option>
+                </select>
+                <input type="text" name="keyword" value="${keyword}">
+                <button type="submit">검색</button>
+            </form>
+        </div>
+        <c:if test="${not empty condition}">
+        	<script>
+                // onload로 해주는게 왜 더 안전하다고..?
+                windows.onload = function(){
+                    const opt = document.querySelector("#search-area option[value=${condition}]")
+                    opt.setAttribute("selected", true);
+                }
+
+        	</script>
+        </c:if>
 
         <table id="list-area">
             <thead>
@@ -41,7 +71,7 @@
               <c:forEach var="b" items="${list}">
                 <tr>
                     <td>${b.boardNo}</td>
-                    <td>${b.boardTitle}</td>
+                    <td><a href="detail.bo?bno=${b.boardNo}">${b.boardTitle}</a></td>
                     <td>${b.boardWriter}</td>
                     <td>${b.count}</td>
                     <td>${b.createDate}</td>
@@ -50,6 +80,28 @@
             </tbody>
         </table>
         <br><br>
+        <div id="paging-area">
+	        <c:if test="${pi.currentPage ne 1}">
+	        	<a href="list.bo?cpage=${pi.currentPage - 1}">[이전]</a>
+	        </c:if>
+	        
+	        <c:forEach var="i" begin="${pi.startPage }" end="${pi.endPage }">
+	        	<c:choose>
+	        	 	<c:when test="${empty condition }">
+	        			<a href="list.bo?cpage=${i}">${i}</a>
+	        		</c:when>
+	        		<c:otherwise>
+	        			<a href="search.bo?cpage=${i}&condition=${condition}&keyword=${keyword}">${i}</a>
+	        		</c:otherwise>
+	        	</c:choose>
+
+	        </c:forEach>
+	        
+	        <c:if test="${pi.currentPage ne pi.maxPage}">
+	        	<a href="list.bo?cpage=${pi.currentPage + 1}">[다음]</a>
+	        </c:if>
+        </div>
+        
     </div>
 </body>
 </html>

@@ -10,21 +10,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.kh.mybatis.board.model.vo.Board;
+import com.kh.mybatis.board.model.vo.Reply;
+import com.kh.mybatis.board.service.BoardService;
 import com.kh.mybatis.board.service.BoardServiceImpl;
-import com.kh.mybatis.common.template.Pagination;
-import com.kh.mybatis.common.vo.PageInfo;
 
 /**
- * Servlet implementation class BoardListController
+ * Servlet implementation class BoardDetailController
  */
-@WebServlet("/list.bo")
-public class BoardListController extends HttpServlet {
+@WebServlet("/detail.bo")
+public class BoardDetailController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public BoardListController() {
+    public BoardDetailController() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -33,19 +33,25 @@ public class BoardListController extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// -------------------------- 페이징 처리 -----------------------------
-		int listCount = new BoardServiceImpl().selectListCount(); // 현재 총 게시글 수 가져오기
-		int currentPage = Integer.parseInt(request.getParameter("cpage"));
+		int boardNo = Integer.parseInt(request.getParameter("bno"));
 		
-		PageInfo pi = Pagination.getPageInfo(listCount, currentPage, 10, 5);
+		BoardService bService = new BoardServiceImpl();
 		
-		ArrayList<Board> list = new BoardServiceImpl().selectList(pi); 
-//		System.out.println(list);
-		request.setAttribute("list", list);
-		request.setAttribute("pi", pi);
-		request.getRequestDispatcher("WEB-INF/views/board/boardListView.jsp").forward(request, response);
-		// 새로운 페이지로 가는거니까 forward?
-
+		// 조회수 증가 + 상세조회
+		Board b = bService.increaseCount(boardNo);
+//		System.out.println("오니");
+		if(b != null) {
+			ArrayList<Reply> list = bService.selectReplyList(boardNo);
+			
+			
+			request.setAttribute("b", b);
+			request.setAttribute("list", list);
+			request.getRequestDispatcher("WEB-INF/views/board/boardDetailView.jsp").forward(request, response);
+//			System.out.println("오니");
+		} else {
+			request.setAttribute("errorMsg", "상세조회 실패");
+			request.getRequestDispatcher("WEB-INF/views/common/errorPage.jsp").forward(request, response);
+		}
 	}
 
 	/**
