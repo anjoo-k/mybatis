@@ -15,6 +15,7 @@ public interface BoardService {
 	
 	// 게시글 검색
 	public int selectSearchCount(HashMap<String, String> map);
+	
 	// 게시글검색 - 페이지 내용물 가져오기
 	public ArrayList<Board> selectSearchList(HashMap<String, String> map, PageInfo pi);
 	
